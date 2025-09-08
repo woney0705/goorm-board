@@ -101,9 +101,6 @@ public class AuthController {
     @GetMapping("/profile")
     public String profileForm(HttpSession session, Model model) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
 
         // 최신 사용자 정보 조회
         User currentUser = userService.findById(user.getId());
@@ -127,9 +124,6 @@ public class AuthController {
                                 Locale locale) {
 
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
 
         if (result.hasErrors()) {
             User currentUser = userService.findById(user.getId());
