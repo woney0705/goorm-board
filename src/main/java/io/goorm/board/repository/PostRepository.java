@@ -1,6 +1,6 @@
-package io.goorm.board.post.repository;
+package io.goorm.board.repository;
 
-import io.goorm.board.post.entity.Post;
+import io.goorm.board.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

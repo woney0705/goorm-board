@@ -5,6 +5,10 @@ spring:
     username: goorm_bord
     password: goorm_bord1234
 
+  messages:
+    basename: messages/ValidationMessages,messages/i18n/messages
+    encoding: UTF-8
+
   # JPA 설정
   jpa:
     show-sql: true   # SQL 쿼리 콘솔에 출력

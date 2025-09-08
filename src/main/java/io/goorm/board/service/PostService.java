@@ -1,9 +1,11 @@
-package io.goorm.board.post.service;
+package io.goorm.board.service;
 
-import io.goorm.board.post.entity.Post;
-import io.goorm.board.post.repository.PostRepository;
+import io.goorm.board.entity.Post;
+import io.goorm.board.exception.PostNotFoundException;
+import io.goorm.board.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +17,13 @@ public class PostService {
 
     // 전체 게시글 조회
     public List<Post> findAll() {
-        return postRepository.findAll();
+        return postRepository.findAll(Sort.by(Sort.Direction.DESC, "seq"));
     }
 
     // SEQ로 게시글 조회
     public Post findBySeq(Long seq) {
         return postRepository.findById(seq)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. seq=" + seq));
+                .orElseThrow(() -> new PostNotFoundException(seq));
     }
 
     // 게시글 저장
@@ -36,13 +38,13 @@ public class PostService {
         Post post = findBySeq(seq);
         post.setTitle(updatePost.getTitle());
         post.setContent(updatePost.getContent());
-        post.setAuthor(updatePost.getAuthor());
         return post;  // @Transactional에 의해 자동으로 UPDATE 쿼리 실행
     }
 
     // 게시글 삭제
     @Transactional
     public void delete(Long seq) {
+        Post post = findBySeq(seq);  // 없으면 PostNotFoundException 발생
         postRepository.deleteById(seq);
     }
 }
