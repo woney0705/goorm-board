@@ -46,21 +46,13 @@ public class PostController {
 
     @GetMapping("/posts/new")
     public String createForm(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
         model.addAttribute("post", new Post());
-
         return "post/form"; // templates/post/form.html
     }
 
     @GetMapping("/posts/{seq}/edit")
     public String editForm(@PathVariable Long seq, HttpSession session,Model model) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
 
         Post post = postService.findBySeq(seq);
 
@@ -101,10 +93,6 @@ public class PostController {
                          RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
-
         // 기존 게시글 조회
         Post existingPost = postService.findBySeq(seq);
 
@@ -128,10 +116,6 @@ public class PostController {
     @PostMapping("/posts/{seq}/delete")
     public String delete(@PathVariable Long seq, HttpSession session,RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/auth/login";
-        }
-
         // 기존 게시글 조회
         Post existingPost = postService.findBySeq(seq);
 
