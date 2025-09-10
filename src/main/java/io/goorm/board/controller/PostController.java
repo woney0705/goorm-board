@@ -8,6 +8,7 @@ import io.goorm.board.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -41,7 +42,7 @@ public class PostController {
     public String show(@PathVariable Long seq, Model model) {
         Post post = postService.findBySeq(seq);
         model.addAttribute("post", post);
-        return "post/show"; // templates/post/show.html
+        return "post/show";
     }
 
     @GetMapping("/posts/new")
@@ -51,8 +52,8 @@ public class PostController {
     }
 
     @GetMapping("/posts/{seq}/edit")
-    public String editForm(@PathVariable Long seq, HttpSession session,Model model) {
-        User user = (User) session.getAttribute("user");
+    public String editForm(@PathVariable Long seq,
+                           @AuthenticationPrincipal User user, Model model) {
 
         Post post = postService.findBySeq(seq);
 
@@ -67,8 +68,8 @@ public class PostController {
 
     @PostMapping("/posts")
     public String create(@Valid @ModelAttribute Post post, BindingResult bindingResult,
-                         HttpSession session, RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
+                         @AuthenticationPrincipal User user, RedirectAttributes redirectAttributes) {
+
         if (user == null) {
             return "redirect:/auth/login";
         }
@@ -89,10 +90,9 @@ public class PostController {
     public String update(@PathVariable Long seq,
                          @Valid @ModelAttribute  Post post,
                          BindingResult bindingResult,
-                         HttpSession session,
+                         @AuthenticationPrincipal User user,
                          RedirectAttributes redirectAttributes) {
 
-        User user = (User) session.getAttribute("user");
         // 기존 게시글 조회
         Post existingPost = postService.findBySeq(seq);
 
@@ -114,8 +114,8 @@ public class PostController {
     }
 
     @PostMapping("/posts/{seq}/delete")
-    public String delete(@PathVariable Long seq, HttpSession session,RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
+    public String delete(@PathVariable Long seq, @AuthenticationPrincipal User user,
+                         RedirectAttributes redirectAttributes) {
         // 기존 게시글 조회
         Post existingPost = postService.findBySeq(seq);
 

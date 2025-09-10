@@ -5,10 +5,10 @@ import io.goorm.board.dto.ProfileUpdateDto;
 import io.goorm.board.dto.SignupDto;
 import io.goorm.board.entity.User;
 import io.goorm.board.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -61,46 +61,10 @@ public class AuthController {
         return "auth/login";
     }
 
-    @PostMapping("/login")
-    public String login(@Valid @ModelAttribute LoginDto loginDto,
-                        BindingResult bindingResult,
-                        HttpSession session,
-                        RedirectAttributes redirectAttributes,
-                        Locale locale) {
-        if (bindingResult.hasErrors()) {
-            return "auth/login";
-        }
-
-        try {
-            User user = userService.authenticate(loginDto);
-
-            session.setAttribute("user", user);
-
-            String message = messageSource.getMessage("flash.user.success", null, "로그인되었습니다.", locale);
-            redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/posts";
-        } catch (Exception e) {
-            bindingResult.reject("login.failed", e.getMessage());
-            return "auth/login";
-        }
-    }
-
-
-    @PostMapping("/logout")
-    public String logout(HttpSession session,
-                         RedirectAttributes redirectAttributes,
-                         Locale locale) {
-        session.invalidate();
-
-        String message = messageSource.getMessage("flash.logout.success", null, "로그아웃되었습니다.", locale);
-        redirectAttributes.addFlashAttribute("successMessage", message);
-        return "redirect:/";
-    }
 
 
     @GetMapping("/profile")
-    public String profileForm(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
+    public String profileForm(@AuthenticationPrincipal User user, Model model) {
 
         // 최신 사용자 정보 조회
         User currentUser = userService.findById(user.getId());
@@ -118,12 +82,10 @@ public class AuthController {
     @PostMapping("/profile")
     public String updateProfile(@Valid @ModelAttribute ProfileUpdateDto profileUpdateDto,
                                 BindingResult result,
-                                HttpSession session,
+                                @AuthenticationPrincipal User user,
                                 RedirectAttributes redirectAttributes,
                                 Model model,
                                 Locale locale) {
-
-        User user = (User) session.getAttribute("user");
 
         if (result.hasErrors()) {
             User currentUser = userService.findById(user.getId());
@@ -133,9 +95,6 @@ public class AuthController {
 
         try {
             User updatedUser = userService.updateProfile(user.getId(), profileUpdateDto);
-
-            // 세션의 사용자 정보 업데이트
-            session.setAttribute("user", updatedUser);
 
             String message = messageSource.getMessage("flash.profile.updated", null, "프로필이 수정되었습니다.", locale);
             redirectAttributes.addFlashAttribute("successMessage", message);
